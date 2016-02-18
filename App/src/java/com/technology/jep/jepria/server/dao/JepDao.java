@@ -1,4 +1,4 @@
-package com.technology.jep.jepria.server.ejb;
+package com.technology.jep.jepria.server.dao;
 
 import static com.technology.jep.jepria.server.JepRiaServerConstant.JEP_RIA_RESOURCE_BUNDLE_NAME;
 
@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import com.technology.jep.jepria.server.dao.DaoSupport;
-import com.technology.jep.jepria.server.dao.ResultSetMapper;
 import com.technology.jep.jepria.shared.exceptions.ApplicationException;
 import com.technology.jep.jepria.shared.field.option.JepOption;
 import com.technology.jep.jepria.shared.record.JepRecord;
@@ -15,22 +13,14 @@ import com.technology.jep.jepria.shared.record.JepRecord;
 /**
  * Общий предок EJB, требующих расширенную работу с данными.
  */
-public class JepDataBean extends JepDataStandardBean {
-
-	public JepDataBean(String dataSourceJndiName, String resourceBundleName) {
-		super(dataSourceJndiName, resourceBundleName);
-	}
+public class JepDao extends JepDaoStandard {
 
 	public List<JepRecord> find(
 			String sqlQuery,
-			String dataSourceJndiName,
 			ResultSetMapper<JepRecord> resultSetMapper,
 			Object... params) throws ApplicationException {
 		return DaoSupport.find(
 				sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
 				resultSetMapper,
 				JepRecord.class,
 				params); 
@@ -38,14 +28,10 @@ public class JepDataBean extends JepDataStandardBean {
 	
 	public List<JepOption> getOptions(
 			String sqlQuery,
-			String dataSourceJndiName,
 			ResultSetMapper<JepOption> resultSetMapper,
 			Object... params) throws ApplicationException {
 		return DaoSupport.find(
 				sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
 				resultSetMapper,
 				JepOption.class,
 				params); 
@@ -53,38 +39,26 @@ public class JepDataBean extends JepDataStandardBean {
 
 	public <T> T create(
 			String sqlQuery,
-			String dataSourceJndiName,
 			Class<T> resultTypeClass,			
 			Object... params) throws ApplicationException {
 		return DaoSupport.<T> create(sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
 				resultTypeClass,
 				params);
 	}
 
 	public void update(
 			String sqlQuery,
-			String dataSourceJndiName,
 			Object... params) throws ApplicationException {
 		DaoSupport.update(
 				sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
 				params);
 	}
 
 	public void delete(
 			String sqlQuery,
-			String dataSourceJndiName,
 			Object... params) throws ApplicationException {
 		DaoSupport.delete(
 				sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
 				params);
 	}
 
@@ -93,21 +67,6 @@ public class JepDataBean extends JepDataStandardBean {
 			Object... params) throws ApplicationException {
 		DaoSupport.execute(
 				sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
-				params);
-	}
-
-	public void execute(
-			String sqlQuery,
-			String dataSourceJndiName,
-			Object... params) throws ApplicationException {
-		DaoSupport.execute(
-				sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
 				params);
 	}
 
@@ -117,23 +76,6 @@ public class JepDataBean extends JepDataStandardBean {
 			Object... params) throws ApplicationException {
 		return DaoSupport.execute(
 				sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
-				resultTypeClass,
-				params);
-	}
-	
-	public <T> T execute(
-			String sqlQuery,
-			String dataSourceJndiName,
-			Class<T> resultTypeClass,
-			Object... params) throws ApplicationException {
-		return DaoSupport.execute(
-				sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
 				resultTypeClass,
 				params);
 	}
@@ -144,49 +86,9 @@ public class JepDataBean extends JepDataStandardBean {
 			Object... params) throws ApplicationException {
 		return DaoSupport.select(
 				sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
 				resultSetMapper,
 				JepRecord.class,
 				params); 
-	}
-
-	public List<JepRecord> select(
-			String sqlQuery,
-			String dataSourceJndiName,
-			ResultSetMapper<JepRecord> resultSetMapper,
-			Object... params) throws ApplicationException {
-		return DaoSupport.select(
-				sqlQuery,
-				sessionContext,
-				dataSourceJndiName,
-				resourceBundleName,
-				resultSetMapper,
-				JepRecord.class,
-				params); 
-	}
-
-	/**
-	 * @deprecated Данный метод будет удалён в JepRia 9. Вместо него следует использовать
-	 * метод {@link com.technology.jep.jepria.shared.field.option.JepOption#getValue(Object option)}
-	 * <br>
-	 * Получение значения из опции {@link com.technology.jep.jepria.shared.field.option.JepOption}.<br/>
-	 * В реализации метод вызывает {@link com.technology.jep.jepria.shared.field.option.JepOption#getValue(Object option)}.<br/>
-	 * Пример использования в прикладном модуле:
-	 * <pre>
-	 *   ...
-	 *   &lt;Integer&gt;getFieldValueFromOption(template.get(CITY_ID)); // Получение значения типа Integer или null.
-	 *   ...
-	 *   &lt;String&gt;getFieldValueFromOption(template.get(COMPANY_CODE)); // Получение значения типа String или null.
-	 *   ...
-	 * </pre>
-	 * @param option опция {@link com.technology.jep.jepria.shared.field.option.JepOption}
-	 * @return значение опции {@link com.technology.jep.jepria.shared.field.option.JepOption#getValue(Object option)}
-	 */	
-	@Deprecated
-	protected <X> X getValueFromOption(Object option) {
-		return JepOption.<X>getValue(option);
 	}
 
 	/**
