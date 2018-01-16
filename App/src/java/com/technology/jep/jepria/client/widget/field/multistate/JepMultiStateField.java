@@ -221,7 +221,16 @@ public abstract class JepMultiStateField<E extends Widget, V extends Widget> ext
 	protected void prepareStyleLabel(Integer orientation) {
 	    if (editableCardLabel != null && viewCardLabel != null) {
 	        Element divViewCardLabel = viewCardLabel.getElement();
+	        Element divViewCardLabelParent = viewCardLabel.getElement().getParentElement();
 	        Element divEditableCardLabel = editableCardLabel.getElement();
+	        Element divEditableCardLabelPanel = editableCardLabel.getElement().getParentElement();
+	        
+	        // если использовать FLowPanel, то применяем стили к текущему элементу с тегом DIV, для VerticalPanel или HorizontalPanel применяем стили к родительскому элементу с тэгами TR или TD
+	        if ((divViewCardLabelParent.getTagName().toLowerCase().contains("tr") || divViewCardLabelParent.getTagName().toLowerCase().contains("td"))
+	                && (divEditableCardLabelPanel.getTagName().toLowerCase().contains("tr") || divEditableCardLabelPanel.getTagName().toLowerCase().contains("td"))) {
+	            divViewCardLabel = divViewCardLabelParent;
+	            divEditableCardLabel = divEditableCardLabelPanel;
+	        }
 	        
 	        switch(orientation) {
     	        case VERTICAL_ORIENTATION: {
@@ -256,7 +265,6 @@ public abstract class JepMultiStateField<E extends Widget, V extends Widget> ext
 	
 	public JepMultiStateField(String fieldIdAsWebEl, String fieldLabel) {
 		initWidget(mainPanel = getMainWidget());
-		
 		// Корректировка параметров
 		fieldLabel = (fieldLabel != null) ? fieldLabel : "";
 
@@ -267,25 +275,37 @@ public abstract class JepMultiStateField<E extends Widget, V extends Widget> ext
 		this.fieldIdAsWebEl = fieldIdAsWebEl;
 
 		prepareStyleLabel(); // default orientation is horizontal
-
-		// Если у добавляемого виджета не задана ширина, DeckPanel выставит 100%.
-		// Нам это не нужно, т.к. приводит к смещению вправо индикаторов
-		// загрузки и некорректного значения.
-		editablePanel.getElement().getStyle().clearWidth();
-		observable = new JepObservableImpl();
-		// Добавляем карту просмотра.
-       addViewCard();
-
-		Element tdField = getViewCard().getElement();
-		tdField.removeAttribute(ALIGN_ATTRIBUTE_NAME);
-		tdField.addClassName(VIEW_CARD_STYLE);
 		
-		// Инициализируем карту редактирования.
-		addEditableCard();
-
-		tdField = getEditableCard().getElement();
-		tdField.removeAttribute(ALIGN_ATTRIBUTE_NAME);
-		tdField.addClassName(EDITABLE_CARD_STYLE);
+		// Если у добавляемого виджета не задана ширина, DeckPanel выставит 100%.
+        // Нам это не нужно, т.к. приводит к смещению вправо индикаторов
+        // загрузки и некорректного значения.
+        editablePanel.getElement().getStyle().clearWidth();
+        observable = new JepObservableImpl();
+        
+        // Добавляем карту просмотра.
+        addViewCard();
+		
+		Element tdFieldViewCard = getViewCard().getElement();
+        Element tdFieldViewCardParent = getViewCard().getElement().getParentElement();
+        
+        // Инициализируем карту редактирования.
+        addEditableCard();
+        
+        Element tdFieldEditableCard = getEditableCard().getElement();
+        Element tdFieldEditableCardParent = getEditableCard().getElement().getParentElement();
+        
+        // если использовать FLowPanel, то применяем стили к текущему элементу с тегом DIV, для VerticalPanel или HorizontalPanel применяем стили к родительскому элементу с тэгами TR или TD 
+        if ((tdFieldViewCardParent.getTagName().toLowerCase().contains("tr") || tdFieldViewCardParent.getTagName().toLowerCase().contains("td"))
+                && (tdFieldEditableCardParent.getTagName().toLowerCase().contains("tr") || tdFieldEditableCardParent.getTagName().toLowerCase().contains("td"))) {
+            tdFieldViewCard = tdFieldViewCardParent;
+            tdFieldEditableCard = tdFieldEditableCardParent;
+        }
+        
+        tdFieldViewCard.removeAttribute(ALIGN_ATTRIBUTE_NAME);
+        tdFieldViewCard.addClassName(VIEW_CARD_STYLE);
+        
+        tdFieldEditableCard.removeAttribute(ALIGN_ATTRIBUTE_NAME);
+        tdFieldEditableCard.addClassName(EDITABLE_CARD_STYLE);
 
 		// Устанавливаем значения лейблов поля.
 		setFieldLabel(fieldLabel);
